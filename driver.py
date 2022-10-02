@@ -1,4 +1,6 @@
-from SampleSystems import FeedbackLoop, Repeater, SimpleRelay, TwoMessages
+from LogicGates import Binary
+from SampleSystems import AndGateTest, FeedbackLoop, OrGateTest, Repeater, SimpleRelay, TwoMessages, XorGateTest
+from MagicMouthSystem import MagicMouthSystem
 
 if __name__ == "__main__":
     # print("testing relay")
@@ -16,6 +18,15 @@ if __name__ == "__main__":
     # feedback.execute()
     # feedback.print_containers()
 
-    repeater = Repeater("test")
-    repeater.print_summary()
-    repeater.execute(10, debug=False)
+    # repeater = Repeater("test")
+    # repeater.print_summary()
+    # repeater.execute(10, debug=False)
+
+    # andtest = AndGateTest("test")
+    # andtest.execute("Execute", "Start", "s1", "s2", False)
+
+    # ortest = OrGateTest("test")
+    # ortest.execute("Execute", "Start", "s1", "s2")
+
+    xortest = XorGateTest("test")
+    xortest.execute("Execute", "Start", "s1", "s2")

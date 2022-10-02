@@ -96,7 +96,7 @@ class MagicMouthSystem():
             print("Containers:")
             self.print_containers()
 
-        print("")
+        print()
 
 
 class Container:

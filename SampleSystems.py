@@ -3,6 +3,7 @@ from TriggerParams import TriggerParams
 from MagicMouthSystem import MagicMouthSystem
 from Trigger import Trigger
 from TriggerTestFunctions import match_audio, match_audio_oneway, match_visual
+import LogicGates
 
 class SimpleRelay(MagicMouthSystem):
     def __init__(self, id):
@@ -145,3 +146,57 @@ class Repeater(MagicMouthSystem):
             self.raise_trigger(init_trig, debug)
 
         print("Time stop")
+
+class AndGateTest(MagicMouthSystem):
+    def __init__(self, id, name=None):
+        super().__init__(id, name)
+
+        self.add(LogicGates.And(
+            id="and", 
+            trig1="Execute", 
+            trig2="Start",
+            input_source1="s1", 
+            input_source2="s2"
+        ))
+
+    def execute(self, input1, input2, source1, source2, debug):
+        trig1 = Trigger(atrig=input1, source=source1)
+        trig2 = Trigger(atrig=input2, source=source2)
+
+        self.raise_triggers([trig1, trig2], debug)
+
+class OrGateTest(MagicMouthSystem):
+    def __init__(self, id, name=None):
+        super().__init__(id, name)
+
+        self.add(LogicGates.Or(
+            id="or", 
+            trig1="Execute", 
+            trig2="Start", 
+            input_source1="s1", 
+            input_source2="s2"
+        ))
+
+    def execute(self, input1, input2, source1, source2):
+        trig1 = Trigger(atrig=input1, source=source1)
+        trig2 = Trigger(atrig=input2, source=source2)
+
+        self.raise_triggers([trig1, trig2])
+
+class XorGateTest(MagicMouthSystem):
+    def __init__(self, id, name=None):
+        super().__init__(id, name)
+
+        self.add(LogicGates.Xor(
+            id="or", 
+            trig1="Execute", 
+            trig2="Start", 
+            input_source1="s1", 
+            input_source2="s2"
+        ))
+
+    def execute(self, input1, input2, source1, source2):
+        trig1 = Trigger(atrig=input1, source=source1)
+        trig2 = Trigger(atrig=input2, source=source2)
+
+        self.raise_triggers([trig1, trig2])

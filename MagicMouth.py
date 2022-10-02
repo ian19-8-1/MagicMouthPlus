@@ -6,8 +6,8 @@ from Trigger import Trigger
 class MagicMouth():
     def __init__(
         self, 
-        out_msg, 
         id, 
+        out_msg,
         pos=None,
         out_vol=5, 
         out_dur=1, 
