@@ -2,23 +2,22 @@ from MagicMouth import MagicMouth
 from TriggerParams import TriggerParams
 from MagicMouthSystem import MagicMouthSystem
 from Trigger import Trigger
+from TriggerTestFunctions import match_audio, match_audio_oneway, match_visual
 
 class SimpleRelay(MagicMouthSystem):
     def __init__(self, id):
         super().__init__(id)
 
-        def trig_fn(self, trigger: Trigger, mouth: MagicMouth):
-            return self.trig_in_range(trigger.pos, mouth.pos) and trigger.atrig == self.atrig
-
-        param1 = TriggerParams(function=trig_fn, atrig="Execute")
-        param2 = TriggerParams(function=trig_fn, atrig="Hello World")
+        param1 = TriggerParams(function=match_audio, atrig="Execute")
+        param2 = TriggerParams(function=match_audio_oneway, atrig="Hello World", source="stone1")
+        param3 = TriggerParams(function=match_audio_oneway, atrig="Hello World", source="stone2")
 
         self.add(MagicMouth(
             id="stone1",
             out_msg="Hello World", 
             pos=[0, 0, 30], 
             trig_params=[param1], 
-            out_vol=5
+            out_vol=5, 
         ))
         self.add(MagicMouth(
             id="stone2",
@@ -31,7 +30,7 @@ class SimpleRelay(MagicMouthSystem):
             id="stone3",
             out_msg="Message Received", 
             pos=[0, 0, 90], 
-            trig_params=[param2]
+            trig_params=[param3]
         ))
 
     def execute(self, msg):
@@ -50,11 +49,8 @@ class TwoMessages(SimpleRelay):
     def __init__(self, id):
         super().__init__(id)
 
-        def trig_fn(self, trigger: Trigger, mouth: MagicMouth):
-            return self.trig_in_range(trigger.pos, mouth.pos) and trigger.atrig == self.atrig
-
-        param1 = TriggerParams(function=trig_fn, atrig="Start")
-        param2 = TriggerParams(function=trig_fn, atrig="Howdy Earth")
+        param1 = TriggerParams(function=match_audio, atrig="Start")
+        param2 = TriggerParams(function=match_audio, atrig="Howdy Earth")
 
         self.add(MagicMouth(
             id="stone4",
@@ -88,3 +84,64 @@ class TwoMessages(SimpleRelay):
         )
 
         self.raise_trigger(init_trig)
+
+class FeedbackLoop(MagicMouthSystem):
+    def __init__(self, id):
+        super().__init__(id)
+
+        param1 = TriggerParams(function=match_audio, atrig="Execute")
+        param2 = TriggerParams(function=match_audio, atrig="Feedback")
+
+        self.add(MagicMouth(
+            id="stone1", 
+            out_msg="Feedback", 
+            pos=[0, 0, 30], 
+            trig_params=[param1]
+        ))
+
+        ids = ["stone2", "stone3"]
+        poss = [[0, 0, 60], [0, 0, 90]] 
+        for i in range(2):
+            self.add(MagicMouth(
+                id=ids[i], 
+                out_msg="Feedback", 
+                pos=poss[i], 
+                trig_params=[param2]
+            ))
+        
+    def execute(self):
+        print("Command: Execute")
+
+        init_trig = Trigger(
+            atrig="Execute", 
+            pos=[0, 0, 0], 
+            source="Ian", 
+            source_type="human"
+        )
+
+        self.raise_trigger(init_trig)
+
+class Repeater(MagicMouthSystem):
+    def __init__(self, id):
+        super().__init__(id)
+
+        param = TriggerParams(function=match_visual, vtrig="move", source_type="grass")
+        self.add(MagicMouth(
+            id="pebble", 
+            out_msg="AH", 
+            trig_params=[param]
+        ))
+
+    def execute(self, num_loops, debug=False):
+        print("Time start")
+
+        init_trig = Trigger(
+            vtrig="move", 
+            source="grass", 
+            source_type="grass"
+        )
+
+        for i in range(num_loops):
+            self.raise_trigger(init_trig, debug)
+
+        print("Time stop")

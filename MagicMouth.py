@@ -34,9 +34,12 @@ class MagicMouth():
         self.out_vol = out_vol              # the output message's volume (1 for near-inaudible whisper, 10 for screaming)
         self.out_dur = out_dur              # the output's duration in seconds
 
-    def speak(self):
+    def speak(self, debug=False):
         if self.out_vol >= 3:
-            print(self.out_msg, "(" + self.id + ")")
+            output = self.out_msg
+            if debug:
+                output += " (" + self.id + ")"
+            print(output)
         return Trigger(atrig=self.out_msg, pos=self.pos, source=self.id), self.out_vol, self.out_dur
 
     def try_triggers(self, triggers: List[Trigger]):        # can be overriden for special cases
@@ -52,3 +55,11 @@ class MagicMouth():
             return True
         else:
             return False
+
+    def print(self):
+        output = "ID: " + str(self.id)
+        output += " | Output: " + str(self.out_msg)
+        output += " | Trigger: " 
+        for param in self.trig_params:
+            output += str(param.function.__name__) + " "
+        print(output)

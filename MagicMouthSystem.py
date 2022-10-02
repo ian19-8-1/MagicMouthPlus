@@ -1,7 +1,6 @@
 from typing import List
 from MagicMouth import MagicMouth
 from Trigger import Trigger
-from TriggerParams import TriggerParams
 
 
 class MagicMouthSystem():
@@ -22,16 +21,17 @@ class MagicMouthSystem():
     def add(self, mouth: MagicMouth):
         self.mouths[mouth.id] = mouth
 
-        x, y, z = mouth.pos[0], mouth.pos[1], mouth.pos[2]
-        if x not in self.containerMap:
-            self.containerMap[x] = {}
-        if y not in self.containerMap[x]:
-            self.containerMap[x][y] = {}
-        if z not in self.containerMap[x][y]:
-            container = Container(pos=[x, y, z])
-            self.containerMap[x][y][z] = container
-            self.containers.append(container)
-        self.containerMap[x][y][z].add(mouth.id)
+        if mouth.pos:
+            x, y, z = mouth.pos[0], mouth.pos[1], mouth.pos[2]
+            if x not in self.containerMap:
+                self.containerMap[x] = {}
+            if y not in self.containerMap[x]:
+                self.containerMap[x][y] = {}
+            if z not in self.containerMap[x][y]:
+                container = Container(pos=[x, y, z])
+                self.containerMap[x][y][z] = container
+                self.containers.append(container)
+            self.containerMap[x][y][z].add(mouth.id)
 
     def remove(self, id):
         if id not in self.mouths:
@@ -40,19 +40,20 @@ class MagicMouthSystem():
             self.mouths.pop(id)
 
     ### TRIGGER HANDLING ###
-    def raise_trigger(self, trigger: Trigger):
-        self.raise_triggers([trigger])
+    def raise_trigger(self, trigger: Trigger, debug=False):
+        self.raise_triggers([trigger], debug)
 
-    def raise_triggers(self, triggers: List[Trigger]):
-        simul_outputs = []
+    def raise_triggers(self, triggers: List[Trigger], debug=False):
+        while triggers:
+            simul_outputs = []
 
-        for mouth in self.mouths.values():
-            if mouth.try_triggers(triggers):
-                out_trig, vol, dur = mouth.speak()
-                simul_outputs.append(out_trig)
+            for mouth in self.mouths.values():
+                triggered = mouth.try_triggers(triggers)
+                if triggered:
+                    out_trig, vol, dur = mouth.speak(debug)
+                    simul_outputs.append(out_trig)
 
-        if simul_outputs:
-            self.raise_triggers(simul_outputs)
+            triggers = simul_outputs
 
     ### SUMMARIZING ###
     def cost(self):
@@ -71,12 +72,16 @@ class MagicMouthSystem():
 
         return days, hours, mins
 
+    def print_mouths(self):
+        for mouth in self.mouths.values():
+            mouth.print()
+
     def print_containers(self):
         for container in self.containers:
             print(container.id, container.pos, container.mouths)
 
     def print_summary(self):
-        print("--- " + str(self.name) + " ---")
+        print("\n----- " + str(self.name) + " -----")
 
         print("Total cost: " + str(self.cost()) + " gp")
 
@@ -86,6 +91,12 @@ class MagicMouthSystem():
         if hours > 0: cast_time_output += str(hours) + " hours "
         if mins > 0: cast_time_output += str(mins) + " mins"
         print(cast_time_output)
+
+        if self.containers:
+            print("Containers:")
+            self.print_containers()
+
+        print("")
 
 
 class Container:

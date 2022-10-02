@@ -10,7 +10,7 @@ class TriggerParams():
         vtrig=None, 
         min_trigrange=0, 
         max_trigrange=30, 
-        person=None, 
+        source=None, 
         source_type=None, 
         misc=None
     ):
@@ -19,7 +19,7 @@ class TriggerParams():
         self.vtrig = vtrig
         self.min_trigrange = min_trigrange
         self.max_trigrange = max_trigrange
-        self.person = person
+        self.source = source
         self.source_type = source_type
         self.misc = misc
 
